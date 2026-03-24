@@ -233,7 +233,7 @@ int main()
 	return 0;
 }
 
-### 3.每个节点的字数大小
+### 3.每个节点的子树大小
 
 const int MAXN = 100005;
 vector<int> node[MAXN];
@@ -295,6 +295,32 @@ int main()
 	return 0;
 }
 
+### 5.树的重心（去掉它之后会有几个连通块，重心的最大连通块在所有最大连通块中是最小的）
+
+const MAXN = 100005;
+vector<int> node[MAXN];
+int n,sz[MAXN];//n是总的节点数，sz是记录当前节点的子节点数
+int ans_node, ans_size = 1e9;//前者是记录重心，后者是最大连通块的大小
+void dfs(int u, int fa)
+{
+	sz[u] = 1;
+	int max_part = 0;
+	for (int v : node[u])
+	{
+		if (v != fa)
+		{
+			dfs(v, u);
+			sz[u] += sz[v];
+			max_part = max(max_part, sz[v]);//一个节点有两个脚（两个孩子），这里就是在比较两个子树的连通块的大小
+		}
+	}
+	max_part = max(max_part, n - sz[u]);//这里是在比较父向连通块与子向连通块的大小（选出当前节点的最大连通块）
+	if (max_part < ans_size)
+	{
+		ans_size = max_part;
+		ans_node = u;//记录该节点，就是重心
+	}
+}
 
 
 

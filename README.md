@@ -209,8 +209,6 @@ void bfs(int start)
 			}
 		}
 	}
-
-
 }
 int main()
 {
@@ -321,6 +319,106 @@ void dfs(int u, int fa)
 		ans_node = u;//记录该节点，就是重心
 	}
 }
+
+### 6.两节点的最近公共祖先
+const int MAXN = 100005;
+vector<int> node[MAXN];
+int parent[MAXN], depth[MAXN];
+
+void dfs(int u, int fa)
+{
+	parent[u] = fa;
+	depth[u] = depth[fa] + 1;//先把自己处理完
+	for (int v : node[u])
+	{
+		if (v != fa)dfs(v, u);//才去遍历孩子，递归孩子
+	}
+}
+
+int lca(int u, int v)//这里uv是节点编号呀
+{
+	while (depth[u] > depth[v]) u = parent[u];//如果不同层就要先把他们弄同层
+	while (depth[v] > depth[u]) v = parent[v];
+	while (u != v)
+	{
+		u = parent[u];//然后不断往上拔，直到相遇
+		v = parent[v];
+	}
+	return u;
+}
+
+
+### 7.树形dp（树的最大独立集（不能选相邻的）
+
+const int MAXN = 100005;
+vector<int> node[MAXN];
+int dp0[MAXN], dp1[MAXN];//前者是不选的权值，后者是选的权值
+int val[MAXN];
+
+void dfs(int u, int fa)
+{
+	dp1[u] = val[u];//选的话就加上自己的权值
+	dp0[u] = 0;//不选的话就初始值为零
+	for (int v : node[u])
+	{
+		if (v != fa)
+		{
+			dfs(v, u);//后序遍历，先处理完孩子，再处理父亲
+			dp1[u] += dp0[v];//父亲选了就不能选孩子
+			dp0[u] += max(dp0[v], dp1[v]);//父亲没选孩子就选或者不选
+		}
+	}
+}
+
+### 8.换根（所有节点到它的距离和换成到它的孩子的距离和）
+
+const int MAXN = 100005;
+vector<int> node[MAXN];
+long long sz[MAXN], f[MAXN];//前者是子节点数，后者是所有节点到它的距离和
+int n;
+void dfs1(int u, int fa)
+{
+	sz[u] = 1;
+	for (int v : node[u])
+	{
+		if (v != fa)
+		{
+			dfs1(v, u);
+			sz[u] += sz[v];
+			f[1] += sz[v];
+		}
+	}
+}
+void dfs2(int u, int fa)
+{
+	for (int v : node[u])
+	{
+		if (v != fa)
+		{
+			f[v] = f[u] + n - 2 * sz[v];
+			dfs2(v, u);
+		}
+	}
+}
+int main()
+{
+	cin >> n;
+	for (int i = 0; i < n; i++)
+	{
+		int u, v;
+		cin >> u >> v;
+		node[u].push_back(v);
+		node[v].push_back(u);
+	}
+	dfs1(1, 0);
+	dfs2(1, 0);
+	for (int i = 0; i <= n; i++)
+	{
+		cout << "以" << i << "为根的总距离：" << f[i] << endl;
+	}
+	return 0;
+}
+
 
 
 
